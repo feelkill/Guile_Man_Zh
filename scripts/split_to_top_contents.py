@@ -54,23 +54,28 @@ nextpos  = 0
 outfile = None
 infile = open("guile.txt")
 for eachline in infile.readlines():
+    prevpos = (nextpos + 1) % 2
     twoLines[nextpos] = eachline
+
+    # need to create file for a new chapter
     if IsTheTopLevelContentMarker(eachline):
         if outputIsAvaiable:
+            # close the open file
             outfile.close()
-        prevpos = (nextpos + 1) % 2
         outfile = open(ConvertToChapterName(twoLines[prevpos][:-1], theChapterFileType), 'w')
         outfile.write(twoLines[prevpos])
-        outfile.write(eachline)
+        # don't write this line, which will be written into the next loop
         outputIsAvaiable = True
-        continue
     # skip the unsed lines before the first chapter
-    if outputIsAvaiable:
-        outfile.write(eachline)
+    elif outputIsAvaiable and twoLines[prevpos] is not None:
+        outfile.write(twoLines[prevpos])
     # move to the next position to record
     nextpos = (nextpos + 1) % 2
 
 if outputIsAvaiable:
+    # that last line shoud be written into correctly
+    prevpos = (nextpos + 1) % 2
+    outfile.write(twoLines[prevpos])
     outfile.close()
 infile.close()
 
