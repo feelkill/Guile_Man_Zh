@@ -1,51 +1,80 @@
 #!/usr/bin/python
 #coding=utf-8
 #
-# cut off guile.txt into pieces, and write the top level contents into different files.
+# cut off guile.txt into pieces, and write the n-level contents into different files.
 #
 
 import sys
 
-# the import constants
-theLeastLenOfNLevelContentMarkerLine = 7
-theChapterFileType = "md"
+# all the default values, and maybe used for default argument
+globalTheLeastRepeats = 7
+globalOutputPostfix = "md"
+globalExecProgram = "split_nlevel_contents.py"
 
-global_options = {
-    # <option name> : [ <option value>, <help info description>, <whether set the default>, <default argument value> ]
+# help/usage metainfo
+#    the key is <option name> which is displayed in command string and begun with '-' or '--'
+#    the value is a list containing the followings:
+#        <option value>, which is holdplace for passed argument value
+#                  it's None for bool datatype.
+#        <help info description>, descript this command argument in detail
+#        <whether set the default>, bool datatype, False if forced given, or True if optional given
+#        <default argument value>, the default argument value or None
+#
+globalFunctionalOpts = {
     "-f" : ["infile",  " the file about n-level contents ", False, None],
     "-m" : ["marker",  " the n-level marker ",              False, None],
-    "-n" : ["number",  " at least how many char within n-level marker ", True, theLeastLenOfNLevelContentMarkerLine],
-    "-t" : ["postfix", " the postfix of output file ",      True, theChapterFileType]
+    "-n" : ["number",  " at least how many char within n-level marker ", True, globalTheLeastRepeats],
+    "-t" : ["postfix", " the postfix of output file ",      True, globalOutputPostfix]
 };
-global_options2 = {
+
+# the other non-functional command arguments, for example '-h'
+# either functional or non-functional is needed, and the case don't make any sense in which they appear both.
+globalNonFunctionalOpts = {
     "-T" : [None,      " only just run all the testcases ", True, False],
     "-h" : [None,      " only print help infomation",       True, False]
 };
-global_argments = {}
 
-def JoinOptionMeta(usageDict):
+# store the real command arguments for user inputting.
+globalRealCmdArgVals = {}
+
+def OptHasDefaultVal(optValList):
+    return optValList[2]
+
+def OptGetDefaultVal(optValList):
+    return optValList[3]
+
+def OptIsOfBoolType(optValList):
+    return optValList[0] is None
+
+def OptGetOptValue(optValList):
+    return optValList[0]
+
+def OptGetDescInfo(optValList):
+    return optValList[1]
+
+def JoinOptionMeta(optDict):
     arguments = ""
-    for opt in usageDict:
-        optval = usageDict[opt]
-        if optval[2]:
+    for opt in optDict:
+        optval = optDict[opt]
+        if OptHasDefaultVal(optval):
             arguments = arguments + " ["
         arguments = arguments + " " + opt + " "
-        if optval[0] is not None:
-            arguments = arguments + optval[0]
-        if optval[2]:
+        if not OptIsOfBoolType(optval):
+            arguments = arguments + OptGetOptValue(optval)
+        if OptHasDefaultVal(optval):
             arguments = arguments + "] "
     return arguments
 
-def JoinArgDetails(usageDict):
-    for opt in usageDict:
-        print "\t", opt, ", ", usageDict[opt][1]
+def JoinArgDetails(optDict):
+    for opt in optDict:
+        print "\t", opt, ", ", OptGetDescInfo(optDict[opt])
 
-def Usage(scripts_name):
+def Usage(scripts_name=globalExecProgram):
     # print help infomation
     print ""
-    print scripts_name + JoinOptionMeta(global_options) + JoinOptionMeta(global_options2)
-    JoinArgDetails(global_options)
-    JoinArgDetails(global_options2)
+    print scripts_name + JoinOptionMeta(globalFunctionalOpts) + JoinOptionMeta(globalNonFunctionalOpts)
+    JoinArgDetails(globalFunctionalOpts)
+    JoinArgDetails(globalNonFunctionalOpts)
     print ""
 
 def ParseOptions():
@@ -55,64 +84,60 @@ def ParseOptions():
     while idx < length:
         # parse the options
         opt = options[idx]
-        if opt in global_options.keys():
-            if global_options[opt][0] is None:
+        if opt in globalFunctionalOpts.keys():
+            if OptIsOfBoolType(globalFunctionalOpts[opt]):
                 # bool datatype, and set True
-                global_argments[opt] = True
+                globalRealCmdArgVals[opt] = True
                 idx = idx + 1
             else:
-                global_argments[opt] = options[idx+1]
+                globalRealCmdArgVals[opt] = options[idx+1]
                 idx = idx + 2
-        elif opt in global_options2.keys():
-            if global_options2[opt][0] is None:
+        elif opt in globalNonFunctionalOpts.keys():
+            if OptIsOfBoolType(globalNonFunctionalOpts[opt]):
                 # bool datatype, and set True
-                global_argments[opt] = True
+                globalRealCmdArgVals[opt] = True
                 idx = idx + 1
             else:
-                global_argments[opt] = options[idx+1]
+                globalRealCmdArgVals[opt] = options[idx+1]
                 idx = idx + 2
         else:
             # invalid options, report error and print help info
-            Usage("split_nlevel_contents.py")
+            Usage()
             sys.exit()
 
-    # if item in global_options2 occurs, don't need to search the global_option
-    isInOptions2 = False
-    for opt in global_options2:
-        if opt in global_argments.keys():
-            isInOptions2 = True
+    # if item in globalNonFunctionalOpts occurs, don't need to search the globalFunctionalOpts
+    hasNonFunctionalOpt = False
+    for opt in globalNonFunctionalOpts:
+        if opt in globalRealCmdArgVals.keys():
+            hasNonFunctionalOpt = True
         else:
             # set the default options values
-            global_argments[opt] = global_options2[opt][3]
+            globalRealCmdArgVals[opt] = OptGetDefaultVal(globalNonFunctionalOpts[opt])
 
-    if not isInOptions2:
-        for opt in global_options:
-            optval = global_options[opt]
-            if opt not in global_argments.keys():
-                if not optval[2]: 
+    if not hasNonFunctionalOpt:
+        for opt in globalFunctionalOpts:
+            optval = globalFunctionalOpts[opt]
+            if opt not in globalRealCmdArgVals.keys():
+                if not OptHasDefaultVal(optval): 
                     # if some arguments without default value aren't given by user, report error and exit
-                    Usage("split_nlevel_contents.py")
+                    Usage()
                     sys.exit()
                 else:
                     # set the default options values
-                    global_argments[opt] = optval[3]
+                    globalRealCmdArgVals[opt] = OptGetDefaultVal(optval)
 
-        # set the global values
-        theLeastLenOfNLevelContentMarkerLine = global_argments["-n"]
-        theNLevelMarker = global_argments["-m"]
-
-# nlevelMarker: the marker char for different level contents
+# markerChar: the marker char for different level contents
 #   for the 1-level contents, it's '*'
 #   for the 2-level contents, it's '='
 # repeats: how many times marker repeats
 #
-def IsTheTopLevelContentMarker(oneLine, nlevelMarker, repeats=theLeastLenOfNLevelContentMarkerLine):
+def IsTheTopLevelContentMarker(oneLine, markerChar, repeats=globalTheLeastRepeats):
     # whether this line mark the top level content 
     if (len(oneLine) < repeats):
         return False
     
     for ch in oneLine[0:repeats]:
-        if (ch != nlevelMarker):
+        if (ch != markerChar):
             return False
     return True
 
@@ -122,13 +147,13 @@ def IsDigit(ch):
 def IsChar(ch):
     return (ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z')
 
-def ConvertToChapterName(titleStr, fileType="md"):
+def ConvertToChapterName(title, fileType=globalOutputPostfix):
     # return the file name according to the given title string and file type
     filename = []
-    aList = titleStr.split(' ')
+    aList = title.split(' ')
     idx = 0
 
-    # handle the chapter seq number, containing digits and '.' and ended with ' '
+    # handle the chapter seq number, containing digits or '.' and ended with ' '
     if IsDigit(aList[0][0]):
         bList = aList[0].split('.')
         cList = []
@@ -140,7 +165,7 @@ def ConvertToChapterName(titleStr, fileType="md"):
         filename.append('_'.join(cList))
         idx = 1
 
-    # handle the rest, skip the nochar
+    # handle the rest
     total = len(aList)
     while idx < total:
         newItem = []
@@ -154,7 +179,7 @@ def ConvertToChapterName(titleStr, fileType="md"):
 
     return '_'.join(filename) + "." + fileType;
 
-def split_main_body(nlevelContentFile, nlevelMarker, repeats, outtype):
+def SplitMainBody(nlevelContentFile, markerChar, repeats, outtype):
     outputIsAvaiable = False
     twoLines = [None, None]
     nextpos  = 0
@@ -166,7 +191,7 @@ def split_main_body(nlevelContentFile, nlevelMarker, repeats, outtype):
         twoLines[nextpos] = eachline
 
         # need to create file for a new chapter
-        if IsTheTopLevelContentMarker(eachline, nlevelMarker, repeats):
+        if IsTheTopLevelContentMarker(eachline, markerChar, repeats):
             if outputIsAvaiable:
                 # close the open file
                 outfile.close()
@@ -219,30 +244,30 @@ def RunAllTestcases():
     print " IsDigit() test11 ", CheckTestcaseResult( False, IsDigit("%c" % (int('9')+1)))
 
     print " ", '='*40
-    print " ConvertToChapterName() test01 ", CheckTestcaseResult( "The_Guile_Reference_Manual", ConvertToChapterName("The Guile Reference Manual", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test02 ", CheckTestcaseResult( "Preface", ConvertToChapterName("Preface", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test03 ", CheckTestcaseResult( "01_Introduction", ConvertToChapterName("1 Introduction", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test04 ", CheckTestcaseResult( "02_Hello_Guile", ConvertToChapterName("2 Hello Guile!", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test05 ", CheckTestcaseResult( "03_Hello_Scheme", ConvertToChapterName("3 Hello Scheme!", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test06 ", CheckTestcaseResult( "01_01_Guile_and_Scheme", ConvertToChapterName("1.1 Guile and Scheme", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test07 ", CheckTestcaseResult( "01_06_Obtaining_and_Installing_Guile", ConvertToChapterName("1.6 Obtaining and Installing Guile", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test08 ", CheckTestcaseResult( "07_02_01_POSIX_Interface_Conventions", ConvertToChapterName("7.2.1 POSIX Interface Conventions", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test09 ", CheckTestcaseResult( "07_03_HTTP_the_Web_and_All_That", ConvertToChapterName("7.3 HTTP, the Web, and All That", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test10 ", CheckTestcaseResult( "07_04_The_ice_9_getopt_long_Module", ConvertToChapterName("7.4 The (ice-9 getopt-long) Module", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test11 ", CheckTestcaseResult( "07_10_Formatted_Output", ConvertToChapterName("7.10 Formatted Output", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test12 ", CheckTestcaseResult( "07_16_sxml_match_Pattern_Matching_of_SXML", ConvertToChapterName("7.16 ‘sxml-match’: Pattern Matching of SXML", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test13 ", CheckTestcaseResult( "SXPath_SXML_Query_Language", ConvertToChapterName("SXPath: SXML Query Language", theChapterFileType)[:-3])
-    print " ConvertToChapterName() test14 ", CheckTestcaseResult( "07_02_12_System_Identification", ConvertToChapterName("7.2.12 System Identification", theChapterFileType)[:-3])
+    print " ConvertToChapterName() test01 ", CheckTestcaseResult( "The_Guile_Reference_Manual", ConvertToChapterName("The Guile Reference Manual")[:-3])
+    print " ConvertToChapterName() test02 ", CheckTestcaseResult( "Preface", ConvertToChapterName("Preface")[:-3])
+    print " ConvertToChapterName() test03 ", CheckTestcaseResult( "01_Introduction", ConvertToChapterName("1 Introduction")[:-3])
+    print " ConvertToChapterName() test04 ", CheckTestcaseResult( "02_Hello_Guile", ConvertToChapterName("2 Hello Guile!")[:-3])
+    print " ConvertToChapterName() test05 ", CheckTestcaseResult( "03_Hello_Scheme", ConvertToChapterName("3 Hello Scheme!")[:-3])
+    print " ConvertToChapterName() test06 ", CheckTestcaseResult( "01_01_Guile_and_Scheme", ConvertToChapterName("1.1 Guile and Scheme")[:-3])
+    print " ConvertToChapterName() test07 ", CheckTestcaseResult( "01_06_Obtaining_and_Installing_Guile", ConvertToChapterName("1.6 Obtaining and Installing Guile")[:-3])
+    print " ConvertToChapterName() test08 ", CheckTestcaseResult( "07_02_01_POSIX_Interface_Conventions", ConvertToChapterName("7.2.1 POSIX Interface Conventions")[:-3])
+    print " ConvertToChapterName() test09 ", CheckTestcaseResult( "07_03_HTTP_the_Web_and_All_That", ConvertToChapterName("7.3 HTTP, the Web, and All That")[:-3])
+    print " ConvertToChapterName() test10 ", CheckTestcaseResult( "07_04_The_ice_9_getopt_long_Module", ConvertToChapterName("7.4 The (ice-9 getopt-long) Module")[:-3])
+    print " ConvertToChapterName() test11 ", CheckTestcaseResult( "07_10_Formatted_Output", ConvertToChapterName("7.10 Formatted Output")[:-3])
+    print " ConvertToChapterName() test12 ", CheckTestcaseResult( "07_16_sxml_match_Pattern_Matching_of_SXML", ConvertToChapterName("7.16 ‘sxml-match’: Pattern Matching of SXML")[:-3])
+    print " ConvertToChapterName() test13 ", CheckTestcaseResult( "SXPath_SXML_Query_Language", ConvertToChapterName("SXPath: SXML Query Language")[:-3])
+    print " ConvertToChapterName() test14 ", CheckTestcaseResult( "07_02_12_System_Identification", ConvertToChapterName("7.2.12 System Identification")[:-3])
 
 if __name__ == '__main__':
     ParseOptions()
-    if global_argments["-T"]:
+    if globalRealCmdArgVals["-T"]:
         RunAllTestcases();
-    elif global_argments["-h"]:
-        Usage("split_nlevel_contents.py")
+    elif globalRealCmdArgVals["-h"]:
+        Usage()
     else:
-        split_main_body(global_argments["-f"],
-                global_argments["-m"],
-                global_argments["-n"],
-                global_argments["-t"])
+        SplitMainBody(globalRealCmdArgVals["-f"],
+                globalRealCmdArgVals["-m"],
+                globalRealCmdArgVals["-n"],
+                globalRealCmdArgVals["-t"])
 
