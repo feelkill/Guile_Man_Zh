@@ -16,7 +16,7 @@ processing, and many other features needed for programming in the real
 world.
 -->
 
-Guile实现了R5RS所描述的Scheme语言。此外，Guile又超越了这一朴素无华的语言，它提供了一个模块化的系统，多POSIX系统调用的完全访问，网络支持，多线程，动态链接，外部函数的调用接口，强大的字符串处理，以及其他现实世界里编程需要的特性。
+Guile实现了R5RS所描述的Scheme语言。此外，Guile又超越了这一朴素无华的语言，它提供了一个模块化的系统，对POSIX系统调用的完全访问，网络支持，多线程，动态链接，外部函数的调用接口，强大的字符串处理，以及其他现实世界里编程需要的特性。
 
 <!--
    The Scheme community has recently agreed and published R6RS, the
