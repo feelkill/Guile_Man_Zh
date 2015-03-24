@@ -20,7 +20,7 @@ available.  This is useful for many reasons, including education,
 auditing and enhancements, as well as for debugging problems.
 -->
 
-正如非自由软件所作的那样，自由软件目标是可靠地工作着。但是，它应该同时授权它的用户，让他们理解它工作的原理。这样做是有用的，也是有原因的，包括教育，审计，功能增强，还有调试问题。
+正如非自由软件所作的那样，自由软件的目标是可靠地工作。但是，它应该同时授权它的用户，让他们理解它工作的原理。这样做是有用的，也是有原因的，像教育，审计，功能增强，还有调试问题。
 
 <!--
    The ideal free software system achieves this by making it easy for
@@ -45,5 +45,5 @@ Guile is a GNU project and so prioritises the GNU vision of programming
 freedom and experimentation.
 -->
 
-许多Scheme实现都是优先让一个修复好的Scheme程序尽可能快的运行起来，Guile却被设计成交互式编程的一类语言。因为修改已经正在运行程序的一部分这种能力和运行性能之间是需要权衡和取舍的，这也正是它区别于许多Scheme实现的地方。
+Guile正是设计为此类的交互式编程语言。这区别于许多其他的Scheme实现，它们都是优先让一个修复好的Scheme程序尽可能快的运行起来。原因在于，修改已经正在运行程序的一部分这种能力和运行性能之间是需要权衡和取舍的。比Guile运行快的Scheme有的是，但是Guile是一个GNU项目，所以它优先关注了编程自由和编程体验这个GNU范围。
 
