@@ -11,9 +11,9 @@ or any of its mirrors.  The file will be named guile-VERSION.tar.gz.
 The current version is 2.0.11, so the file you should grab is:
 -->
 
-Guile能够从GNU主站<ftp://ftp.gnu.org>或者它的任何镜像站获取得到。文件命名为guile-版本.tar.gz。当前版本是2.0.11，所以你应该抓取的文件是
+Guile能够从GNU主站 <ftp://ftp.gnu.org> 或者它的任何镜像站获取得到。文件命名为guile-版本.tar.gz。当前版本是2.0.11，所以你应该抓取的文件是
 
-   <ftp://ftp.gnu.org/gnu/guile/guile-2.0.11.tar.gz>
+    <ftp://ftp.gnu.org/gnu/guile/guile-2.0.11.tar.gz> 
 
 <!--
    To unbundle Guile use the instruction
@@ -52,5 +52,5 @@ Scheme”, we have included the report in the Guile distribution; see
 directory.
 -->
 
-因为该手册会频繁地引用Scheme标准，即R5RS，我们在Guile的发布里也囊括了此报告，请参考Introduction:(http://www.gnu.org/software/guile/manual/r5rs/index.html#Top)。这也会安装到你的info目录下面。
+因为该手册会频繁地引用Scheme标准，即R5RS，我们在Guile的发布里也囊括了此报告，请参考[Introduction](http://www.gnu.org/software/guile/manual/r5rs/index.html#Top)。这也会安装到你的info目录下面。
 
