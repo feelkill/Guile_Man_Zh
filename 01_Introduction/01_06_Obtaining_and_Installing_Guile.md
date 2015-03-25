@@ -13,7 +13,7 @@ The current version is 2.0.11, so the file you should grab is:
 
 Guile能够从GNU主站 <ftp://ftp.gnu.org> 或者它的任何镜像站获取得到。文件命名为guile-版本.tar.gz。当前版本是2.0.11，所以你应该抓取的文件是
 
-    <ftp://ftp.gnu.org/gnu/guile/guile-2.0.11.tar.gz> 
+  <ftp://ftp.gnu.org/gnu/guile/guile-2.0.11.tar.gz>
 
 <!--
    To unbundle Guile use the instruction
