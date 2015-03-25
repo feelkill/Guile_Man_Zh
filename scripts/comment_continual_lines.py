@@ -5,6 +5,7 @@
 
 import re
 import sys
+import os
 
 def help():
     print " comment_continual_lines.py [ -h ] [ -f onefile ] "
@@ -49,6 +50,7 @@ def comments(onefile):
         outfile.write(commentStr2)
     infile.close()
     outfile.close()
+    os.system("mv " + tmp + " " + onefile)
 
 def parse():
     length = len(sys.argv) - 1
