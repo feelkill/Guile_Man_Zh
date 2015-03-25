@@ -21,5 +21,5 @@ language of their choice, rather than having the tastes of the
 application’s author imposed on them.
 -->
 
-这意味着，用户不再需要使用应用程序的作者强加给的语言来，能够自己选择语言来编写使用Guile的程序。
+这意味着，用户不再需要使用程序作者强加的编程语言，而能够自己选择语言，使用Guile来编写应用程序。
 
