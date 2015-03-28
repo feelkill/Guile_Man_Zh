@@ -11,7 +11,7 @@ evaluation of Scheme expression is shown, we use some notation for
 denoting the output and evaluation results of expressions.
 -->
 
-在例子描述,例程描述,其他书写Scheme表达式评估的地方，我们用某个符号来表示表达式的计算结果。
+在描述例子例程,还有书写评估Scheme表达式的其他地方，我们用某些符号来表示表达式的输出和评估结果。
 
 <!--
    The symbol ‘⇒’ is used to tell which value is returned by an
